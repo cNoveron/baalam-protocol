@@ -2,8 +2,10 @@ export interface SPEIDeposit {
   id: string;
   amount: number;
   currency: 'MXN';
-  senderAccount: string;
-  receiverAccount: string;
+  sender_clabe: string;
+  sender_name: string;
+  receiver_clabe: string;
+  receiver_name: string;
   reference: string;
   timestamp: Date;
   status: 'pending' | 'completed' | 'failed';

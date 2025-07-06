@@ -11,8 +11,10 @@ async function main() {
   const exampleDeposit = {
     amount: 1000.00,
     currency: 'MXN' as const,
-    senderAccount: '012345678901234567',
-    receiverAccount: '098765432109876543',
+    sender_clabe: '012345678901234567',
+    sender_name: 'Empresa Remitente SA de CV',
+    receiver_clabe: '098765432109876543',
+    receiver_name: 'Empresa Receptora SA de CV',
     reference: 'Payment for services'
   };
 
