@@ -38,12 +38,47 @@ export class SPEIDepositService {
   }
 
   private async simulateProcessing(deposit: SPEIDeposit): Promise<void> {
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      console.log(`🔄 Simulating SPEI deposit via Juno API...`);
 
-    // Update status
-    deposit.status = 'completed';
-    console.log(`✅ SPEI deposit ${deposit.id} completed successfully`);
+      // Prepare the request body with the deposit data
+      const requestBody = {
+        amount: deposit.amount,
+        currency: deposit.currency,
+        sender_clabe: deposit.sender_clabe,
+        sender_name: deposit.sender_name,
+        receiver_clabe: deposit.receiver_clabe, // Using placeholder value
+        receiver_name: deposit.receiver_name,
+        reference: deposit.reference
+      };
+
+      // Make HTTP POST request to Juno's test deposits endpoint
+      const response = await fetch('https://stage.buildwithjuno.com/spei/test/deposits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Note: In production, you would add authentication headers here
+          // 'Authorization': `Bearer ${process.env.JUNO_API_KEY}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log(`✅ SPEI deposit ${deposit.id} simulated successfully via Juno API`);
+      console.log(`📄 API Response:`, result);
+
+      // Update status based on API response
+      deposit.status = 'completed';
+
+    } catch (error) {
+      console.error(`❌ Failed to simulate SPEI deposit ${deposit.id}:`, error);
+      deposit.status = 'failed';
+      throw error;
+    }
   }
 
   private generateId(): string {
