@@ -1,3 +1,5 @@
+import { createHMACAuthenticator } from './auth';
+
 export interface SPEIDeposit {
   id: string;
   amount: number;
@@ -13,9 +15,17 @@ export interface SPEIDeposit {
 
 export class SPEIDepositService {
   private deposits: SPEIDeposit[] = [];
+  private authenticator: ReturnType<typeof createHMACAuthenticator> | null;
 
   constructor() {
     console.log('🏦 Mexican SPEI Deposits Service initialized');
+    try {
+      this.authenticator = createHMACAuthenticator();
+      console.log('🔐 HMAC Authentication initialized successfully');
+    } catch (error) {
+      console.warn('⚠️ HMAC Authentication not available:', error);
+      this.authenticator = null;
+    }
   }
 
   async processDeposit(deposit: Omit<SPEIDeposit, 'id' | 'timestamp' | 'status'>): Promise<SPEIDeposit> {
@@ -47,24 +57,36 @@ export class SPEIDepositService {
         currency: deposit.currency,
         sender_clabe: deposit.sender_clabe,
         sender_name: deposit.sender_name,
-        receiver_clabe: deposit.receiver_clabe, // Using placeholder value
+        receiver_clabe: deposit.receiver_clabe,
         receiver_name: deposit.receiver_name,
         reference: deposit.reference
       };
 
-      // Make HTTP POST request to Juno's test deposits endpoint
-      const response = await fetch('https://stage.buildwithjuno.com/spei/test/deposits', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Note: In production, you would add authentication headers here
-          // 'Authorization': `Bearer ${process.env.JUNO_API_KEY}`
-        },
-        body: JSON.stringify(requestBody)
-      });
+      let response: Response;
+
+      if (this.authenticator) {
+        // Use HMAC authenticated request
+        console.log(`🔐 Making authenticated request with HMAC signature...`);
+        response = await this.authenticator.authenticatedFetch(
+          'https://stage.buildwithjuno.com/spei/test/deposits',
+          'POST',
+          requestBody
+        );
+      } else {
+        // Fallback to unauthenticated request (for testing)
+        console.log(`⚠️ Making unauthenticated request (fallback mode)...`);
+        response = await fetch('https://stage.buildwithjuno.com/spei/test/deposits', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        });
+      }
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
       }
 
       const result = await response.json();

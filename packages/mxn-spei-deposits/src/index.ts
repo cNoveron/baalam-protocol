@@ -1,6 +1,10 @@
 import dotenv from 'dotenv';
 import { SPEIDepositService } from './deposit';
 
+// Export authentication modules
+export * from './auth';
+export * from './juno-api-client';
+
 // Load environment variables
 dotenv.config();
 
