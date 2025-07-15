@@ -165,14 +165,14 @@ body {
 .service-card p {
   color: var(--text-secondary);
   margin-bottom: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .service-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  gap: 1rem;
 }
 
 /* Status Indicators */

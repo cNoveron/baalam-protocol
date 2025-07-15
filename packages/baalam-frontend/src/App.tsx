@@ -143,25 +143,16 @@ function App() {
 
   const services = [
     {
-      id: 'spei-deposits',
-      name: 'SPEI Deposits',
-      description: 'Mexican SPEI deposit processing service',
-      status: 'active',
-      endpoint: '/api/spei/deposits'
+      id: 'arbitrage-investment',
+      name: 'DeFi Arbitrage',
+      description: 'Take advantage of price differences across Decentralized Exchanges across different networks. Our automated system identifies and executes profitable opportunities while you sleep, delivering consistent returns with lower risk through market-neutral strategies.',
+      status: 'active'
     },
     {
-      id: 'cross-chain-arbitrage',
-      name: 'Cross-Chain Arbitrage',
-      description: 'Automated arbitrage between Avalanche and Sonic networks',
-      status: 'monitoring',
-      endpoint: '/api/arbitrage'
-    },
-    {
-      id: 'tradingview-webhooks',
-      name: 'TradingView Webhooks',
-      description: 'Automated trading with TradingView alerts',
-      status: 'ready',
-      endpoint: '/api/webhooks'
+      id: 'trading-bot-investment',
+      name: 'AI Trading Bot',
+      description: 'Let our intelligent trading algorithm work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and stop-loss mechanisms.',
+      status: 'active'
     }
   ]
 
@@ -189,7 +180,6 @@ function App() {
                 <span className={`status ${service.status}`}>
                   {service.status}
                 </span>
-                <code>{service.endpoint}</code>
               </div>
             </div>
           ))}
