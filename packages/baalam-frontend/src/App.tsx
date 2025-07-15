@@ -149,7 +149,7 @@ function App() {
     {
       id: 'arbitrage-investment',
       name: 'DeFi Arbitrage',
-      description: 'Take advantage of price differences across Decentralized Exchanges across different networks. Our automated system identifies and executes profitable opportunities while you sleep, delivering consistent returns with lower risk through market-neutral strategies.',
+      description: 'Take advantage of price differences across Decentralized Exchanges on Ethereum Mainnet and Arbitrum networks. Our automated system identifies and executes profitable opportunities while you sleep, delivering consistent returns with lower risk through market-neutral strategies.',
       status: 'active'
     },
     {
@@ -233,6 +233,18 @@ function App() {
     const totalPortfolioValue = arbitrageData.getTotalPortfolioValue();
     const priceDiff = arbitrageData.getPriceDifference();
 
+    // Chain name mapping for display
+    const getChainDisplayName = (chainKey: string) => {
+      switch (chainKey) {
+        case 'avalanche':
+          return 'Ethereum Mainnet';
+        case 'sonic':
+          return 'Arbitrum';
+        default:
+          return chainKey;
+      }
+    };
+
     // Create chart data from real-time portfolio history
     const portfolioChartData = arbitrageData.portfolioHistory.length > 0 ? {
       labels: arbitrageData.portfolioHistory.map(point =>
@@ -277,24 +289,24 @@ function App() {
           <div className="portfolio-section">
             <h3>Portfolio</h3>
 
-            <div className="balance-item">
-              <label>Avalanche Balance</label>
+                        <div className="balance-item">
+              <label>Ethereum Mainnet Balance</label>
               <div className="balance-value">
                 ${arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.total.toFixed(2) : '0.00'}
               </div>
               <div className="balance-detail">
-                USDC: {arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.usdc.toFixed(2) : '0.00'} |
+                MXNB: {arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.usdc.toFixed(2) : '0.00'} |
                 USDT: {arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.usdt.toFixed(2) : '0.00'}
               </div>
             </div>
 
             <div className="balance-item">
-              <label>Sonic Balance</label>
+              <label>Arbitrum Balance</label>
               <div className="balance-value">
                 ${arbitrageData.balances.sonic ? arbitrageData.balances.sonic.total.toFixed(2) : '0.00'}
               </div>
               <div className="balance-detail">
-                USDC: {arbitrageData.balances.sonic ? arbitrageData.balances.sonic.usdc.toFixed(2) : '0.00'} |
+                MXNB: {arbitrageData.balances.sonic ? arbitrageData.balances.sonic.usdc.toFixed(2) : '0.00'} |
                 USDT: {arbitrageData.balances.sonic ? arbitrageData.balances.sonic.usdt.toFixed(2) : '0.00'}
               </div>
             </div>
@@ -304,7 +316,7 @@ function App() {
               {priceDiff ? (
                 <div className="price-diff">
                   <span className="percentage">{priceDiff.percentage.toFixed(4)}%</span>
-                  <span className="direction">{priceDiff.direction === 'avalanche_higher' ? '↑ AVA' : '↓ SON'}</span>
+                  <span className="direction">{priceDiff.direction === 'avalanche_higher' ? '↑ ETH' : '↓ ARB'}</span>
                 </div>
               ) : (
                 <span className="no-data">No price data</span>
@@ -340,7 +352,7 @@ function App() {
                   {arbitrageData.recentTrades.slice(0, 5).map((trade, index) => (
                     <div key={index} className="trade-item">
                       <div className="trade-header">
-                        <span className="trade-type">{trade.type}</span>
+                        <span className="trade-type">{trade.type.replace('USDC_TARGETED', 'MXNB_TARGETED')}</span>
                         <span className="trade-timestamp">
                           {new Date(trade.timestamp).toLocaleTimeString('en-US', {
                             hour: '2-digit',
@@ -349,7 +361,7 @@ function App() {
                         </span>
                       </div>
                       <div className="trade-details">
-                        <span className="trade-route">{trade.sourceChain} → {trade.targetChain}</span>
+                        <span className="trade-route">{getChainDisplayName(trade.sourceChain)} → {getChainDisplayName(trade.targetChain)}</span>
                         <span className={`trade-profit ${trade.netProfit > 0 ? 'positive' : 'negative'}`}>
                           ${trade.netProfit.toFixed(4)}
                         </span>
@@ -404,7 +416,7 @@ function App() {
           </div>
 
           <div className="balance-item">
-            <label>MXNB in Arbitrage</label>
+            <label>MXNB in Trading Bot</label>
             <div className="balance-value">$12,875.25</div>
           </div>
 

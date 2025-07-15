@@ -7,15 +7,15 @@ export interface PriceData {
 }
 
 export interface BalanceData {
-  usdc: number;
+  usdc: number; // MXNB balance (backend key remains 'usdc')
   usdt: number;
   total: number;
   timestamp: number;
 }
 
 export interface TradeData {
-  sourceChain: string;
-  targetChain: string;
+  sourceChain: string; // Chain keys: 'avalanche' (Ethereum Mainnet), 'sonic' (Arbitrum)
+  targetChain: string; // Chain keys: 'avalanche' (Ethereum Mainnet), 'sonic' (Arbitrum)
   sourcePrice: number;
   targetPrice: number;
   amount: number;
@@ -23,7 +23,7 @@ export interface TradeData {
   gasCost: number;
   netProfit: number;
   status: 'executed' | 'failed' | 'pending';
-  type: 'USDC_TARGETED' | 'USDT_TARGETED';
+  type: 'USDC_TARGETED' | 'USDT_TARGETED'; // USDC_TARGETED displays as MXNB_TARGETED
   timestamp: number;
 }
 
@@ -37,9 +37,9 @@ export interface StatsData {
 }
 
 export interface OpportunityData {
-  type: 'USDC_TARGETED' | 'USDT_TARGETED';
-  buyChain: string;
-  sellChain: string;
+  type: 'USDC_TARGETED' | 'USDT_TARGETED'; // USDC_TARGETED displays as MXNB_TARGETED
+  buyChain: string; // Chain keys: 'avalanche' (Ethereum Mainnet), 'sonic' (Arbitrum)
+  sellChain: string; // Chain keys: 'avalanche' (Ethereum Mainnet), 'sonic' (Arbitrum)
   buyPrice: number;
   sellPrice: number;
   tradeAmount: number;
@@ -58,12 +58,12 @@ export interface ArbitrageData {
 export interface ArbitrageState {
   connected: boolean;
   prices: {
-    avalanche: PriceData | null;
-    sonic: PriceData | null;
+    avalanche: PriceData | null; // Ethereum Mainnet (backend key remains 'avalanche')
+    sonic: PriceData | null; // Arbitrum (backend key remains 'sonic')
   };
   balances: {
-    avalanche: BalanceData | null;
-    sonic: BalanceData | null;
+    avalanche: BalanceData | null; // Ethereum Mainnet (backend key remains 'avalanche')
+    sonic: BalanceData | null; // Arbitrum (backend key remains 'sonic')
   };
   recentTrades: TradeData[];
   stats: StatsData | null;
@@ -240,7 +240,7 @@ export const useArbitrageWebSocket = () => {
     return {
       absolute: priceDiff,
       percentage: percentageDiff,
-      direction: avalanchePrice > sonicPrice ? 'avalanche_higher' : 'sonic_higher'
+      direction: avalanchePrice > sonicPrice ? 'avalanche_higher' : 'sonic_higher' // 'avalanche' = Ethereum Mainnet, 'sonic' = Arbitrum
     };
   }, [state.prices]);
 
