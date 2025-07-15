@@ -311,6 +311,111 @@ code {
   font-family: 'Fira Code', 'Consolas', monospace;
 }
 
+/* Arbitrage Page Styles */
+.arbitrage-layout {
+  display: flex;
+  gap: 2rem;
+  height: calc(100vh - 300px); /* Adjust based on header + logo height */
+  min-height: 600px;
+}
+
+.arbitrage-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.arbitrage-panel {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  height: 100%;
+  min-height: 400px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+.arbitrage-panel::before {
+  content: "Arbitrage Trading Panel";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.arbitrage-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.portfolio-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.portfolio-section h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.balance-item {
+  margin-bottom: 1.5rem;
+}
+
+.balance-item label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.balance-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.action-buttons .btn-primary,
+.action-buttons .btn-secondary {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Page Placeholder */
+.page-placeholder {
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .header {
@@ -346,5 +451,30 @@ code {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+
+  /* Arbitrage page mobile styles */
+  .arbitrage-layout {
+    flex-direction: column;
+    height: auto;
+    gap: 1rem;
+  }
+
+  .arbitrage-sidebar {
+    width: 100%;
+    order: -1; /* Show sidebar first on mobile */
+  }
+
+  .arbitrage-panel {
+    min-height: 300px;
+  }
+
+  .action-buttons {
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .portfolio-section {
+    padding: 1rem;
   }
 }
