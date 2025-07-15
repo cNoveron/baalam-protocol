@@ -299,6 +299,25 @@ body {
   font-size: 2rem;
   font-weight: 700;
   color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.stat-indicator {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.stat-indicator.positive {
+  color: var(--success-color);
+  background-color: #d1fae5;
+}
+
+.stat-indicator.negative {
+  color: var(--error-color);
+  background-color: #fee2e2;
 }
 
 /* Code styling */

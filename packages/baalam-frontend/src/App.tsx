@@ -208,19 +208,22 @@ function App() {
       )}
 
       <section className="stats">
-        <h2>System Status</h2>
+        <h2>Portfolio Overview</h2>
         <div className="stats-grid">
           <div className="stat-card">
-            <h4>Active Services</h4>
-            <div className="stat-value">3</div>
+            <h4>Total Portfolio</h4>
+            <div className="stat-value">$47,892.35</div>
+            <div className="stat-indicator positive">+1.2%</div>
           </div>
           <div className="stat-card">
-            <h4>Total Transactions</h4>
-            <div className="stat-value">1,247</div>
+            <h4>Arbitrage</h4>
+            <div className="stat-value">${arbitragePortfolioData.data[arbitragePortfolioData.data.length - 1].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div className="stat-indicator positive">+2.3%</div>
           </div>
           <div className="stat-card">
-            <h4>System Uptime</h4>
-            <div className="stat-value">99.9%</div>
+            <h4>Trading Bot</h4>
+            <div className="stat-value">${tradingBotPortfolioData.data[tradingBotPortfolioData.data.length - 1].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div className="stat-indicator positive">+4.1%</div>
           </div>
         </div>
       </section>
