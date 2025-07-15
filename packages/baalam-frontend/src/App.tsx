@@ -6,6 +6,16 @@ function App() {
   const [activeService, setActiveService] = useState<string | null>(null)
   const [activeNavSection, setActiveNavSection] = useState<string>('home')
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      // You could add a toast notification here
+      console.log('Copied to clipboard:', text)
+    } catch (err) {
+      console.error('Failed to copy: ', err)
+    }
+  }
+
   const services = [
     {
       id: 'spei-deposits',
@@ -123,12 +133,90 @@ function App() {
     </div>
   )
 
+  const renderDepositPage = () => (
+    <div className="deposit-page">
+      <div className="deposit-header">
+        <h1>Transfer Money</h1>
+        <p>Initiate a fund transfer to the bank account details listed below. Once we receive the funds, we will credit your account with the corresponding MXNB.</p>
+      </div>
+
+      <div className="deposit-limits">
+        <div className="limit-row">
+          <span className="limit-label">Monthly fiat deposit limit:</span>
+          <span className="limit-value">$0.00 / $1,000,000.00</span>
+        </div>
+        <div className="limit-row">
+          <span className="limit-label">Remaining limit:</span>
+          <span className="limit-value highlight">$1,000,000.00</span>
+        </div>
+      </div>
+
+      <div className="deposit-info">
+        <div className="info-item">
+          <span className="info-icon">💡</span>
+          <span>If you would like to deposit more, you can submit a <a href="#" className="info-link">limit increase request</a>.</span>
+        </div>
+
+        <div className="info-item">
+          <span className="info-icon">⬇️</span>
+          <span>The minimum deposit is $101 MXN. Any amount below this will be returned.</span>
+        </div>
+      </div>
+
+      <div className="bank-details">
+        <div className="bank-field">
+          <label>Bank Name</label>
+          <div className="field-value">
+            <span>Nvio</span>
+            <button className="copy-btn" aria-label="Copy bank name" onClick={() => copyToClipboard('Nvio')}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="bank-field">
+          <label>Beneficiary</label>
+          <div className="field-value">
+            <span>Baalam Fintech</span>
+            <button className="copy-btn" aria-label="Copy beneficiary name" onClick={() => copyToClipboard('Baalam Fintech')}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="bank-field">
+          <label>CLABE</label>
+          <div className="field-value">
+            <span>710969000000411457</span>
+            <button className="copy-btn" aria-label="Copy CLABE" onClick={() => copyToClipboard('710969000000411457')}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="deposit-actions">
+        <button className="btn-secondary btn-back">Back</button>
+        <button className="btn-primary btn-done" onClick={() => setActiveNavSection('home')}>Done</button>
+      </div>
+    </div>
+  )
+
   const renderCurrentPage = () => {
     switch (activeNavSection) {
       case 'arbitrage':
         return renderArbitragePage()
       case 'deposit':
-        return <div className="page-placeholder">Deposit Page - Coming Soon</div>
+        return renderDepositPage()
       case 'trading-bot':
         return <div className="page-placeholder">Trading Bot Page - Coming Soon</div>
       default:

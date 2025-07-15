@@ -416,6 +416,179 @@ code {
   font-weight: 500;
 }
 
+/* Deposit Page Styles */
+.deposit-page {
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.deposit-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.deposit-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.deposit-header p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.deposit-limits {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.limit-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.limit-row:last-child {
+  margin-bottom: 0;
+}
+
+.limit-label {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.limit-value {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+.limit-value.highlight {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.deposit-info {
+  margin-bottom: 2rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #fefce8;
+  border: 1px solid #fef3c7;
+  border-radius: 8px;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.info-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.info-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.info-link:hover {
+  text-decoration: underline;
+}
+
+.bank-details {
+  margin-bottom: 2rem;
+}
+
+.bank-field {
+  margin-bottom: 1.5rem;
+}
+
+.bank-field:last-child {
+  margin-bottom: 0;
+}
+
+.bank-field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.field-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.field-value span {
+  font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-btn:hover {
+  background: var(--border);
+  color: var(--primary-color);
+}
+
+.deposit-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-back {
+  flex: 1;
+}
+
+.btn-done {
+  flex: 2;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .header {
@@ -476,5 +649,49 @@ code {
 
   .portfolio-section {
     padding: 1rem;
+  }
+
+  /* Deposit page mobile styles */
+  .deposit-page {
+    margin: 0;
+    padding: 1.5rem;
+    border-radius: 0;
+  }
+
+  .deposit-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .deposit-header p {
+    font-size: 0.9rem;
+  }
+
+  .deposit-limits {
+    padding: 1rem;
+  }
+
+  .limit-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .info-item {
+    padding: 0.75rem;
+  }
+
+  .field-value {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .deposit-actions {
+    flex-direction: column;
+  }
+
+  .btn-back,
+  .btn-done {
+    flex: none;
+    width: 100%;
   }
 }
