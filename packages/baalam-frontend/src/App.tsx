@@ -133,6 +133,37 @@ function App() {
     </div>
   )
 
+  const renderTradingBotPage = () => (
+    <div className="trading-bot-layout">
+      <div className="trading-bot-main">
+        <div className="trading-bot-panel">
+          {/* Empty rectangular panel for arbitrage content */}
+        </div>
+      </div>
+
+      <div className="trading-bot-sidebar">
+        <div className="portfolio-section">
+          <h3>Portfolio</h3>
+
+          <div className="balance-item">
+            <label>MXNB in Portfolio</label>
+            <div className="balance-value">$25,430.50</div>
+          </div>
+
+          <div className="balance-item">
+            <label>MXNB in Arbitrage</label>
+            <div className="balance-value">$12,875.25</div>
+          </div>
+
+          <div className="action-buttons">
+            <button className="btn-primary">Deposit</button>
+            <button className="btn-secondary">Withdraw</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   const renderDepositPage = () => (
     <div className="deposit-page">
       <div className="deposit-header">
@@ -218,7 +249,7 @@ function App() {
       case 'deposit':
         return renderDepositPage()
       case 'trading-bot':
-        return <div className="page-placeholder">Trading Bot Page - Coming Soon</div>
+        return renderTradingBotPage()
       default:
         return renderHomePage()
     }
