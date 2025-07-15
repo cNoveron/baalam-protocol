@@ -26,8 +26,8 @@ ChartJS.register(
 )
 
 function App() {
-  const [activeService, setActiveService] = useState<string | null>(null)
   const [activeNavSection, setActiveNavSection] = useState<string>('home')
+  const [depositType, setDepositType] = useState<string>('mxnb') // 'mxnb' or 'mxn'
 
   // Portfolio evolution data
   const generatePortfolioData = (baseValue: number, volatility: number = 0.05) => {
@@ -171,8 +171,7 @@ function App() {
           {services.map((service) => (
             <div
               key={service.id}
-              className={`service-card ${activeService === service.id ? 'active' : ''}`}
-              onClick={() => setActiveService(activeService === service.id ? null : service.id)}
+              className="service-card"
             >
               <h3>{service.name}</h3>
               <p>{service.description}</p>
@@ -180,22 +179,20 @@ function App() {
                 <span className={`status ${service.status}`}>
                   {service.status}
                 </span>
+                <button
+                  className="btn-primary service-btn"
+                  onClick={() => {
+                    setDepositType(service.id === 'arbitrage-investment' ? 'mxnb' : 'mxn')
+                    setActiveNavSection('deposit')
+                  }}
+                >
+                  {service.id === 'arbitrage-investment' ? 'Get MXNB' : 'Deposit MXN'}
+                </button>
               </div>
             </div>
           ))}
         </div>
       </section>
-
-      {activeService && (
-        <section className="service-details">
-          <h3>Service Details: {services.find(s => s.id === activeService)?.name}</h3>
-          <div className="details-content">
-            <p>Detailed monitoring and configuration for this service would appear here.</p>
-            <button className="btn-primary">Configure Service</button>
-            <button className="btn-secondary">View Logs</button>
-          </div>
-        </section>
-      )}
 
       <section className="stats">
         <h2>Portfolio Overview</h2>
@@ -310,14 +307,43 @@ function App() {
     </div>
   )
 
-  const renderDepositPage = () => (
-    <div className="deposit-page">
-      <div className="deposit-header">
-        <h1>Transfer Money</h1>
-        <p>Initiate a fund transfer to the bank account details listed below. Once we receive the funds, we will credit your account with the corresponding MXNB.</p>
-      </div>
+  const renderDepositPage = () => {
+    const bankDetails = {
+      mxnb: {
+        clabe: '710969000000411457',
+        description: 'Once we receive the funds, we will credit your account with the corresponding MXNB.'
+      },
+      mxn: {
+        clabe: '713769945002411258',
+        description: 'Once we receive the funds, we will credit your account with MXN for trading bot operations.'
+      }
+    }
 
-      <div className="deposit-limits">
+    const currentDetails = bankDetails[depositType as keyof typeof bankDetails]
+
+    return (
+      <div className="deposit-page">
+        <div className="deposit-header">
+          <h1>Transfer Money</h1>
+          <p>Initiate a fund transfer to the bank account details listed below. {currentDetails.description}</p>
+        </div>
+
+        <div className="deposit-type-toggle">
+          <button
+            className={`toggle-btn ${depositType === 'mxnb' ? 'active' : ''}`}
+            onClick={() => setDepositType('mxnb')}
+          >
+            Get MXNB
+          </button>
+          <button
+            className={`toggle-btn ${depositType === 'mxn' ? 'active' : ''}`}
+            onClick={() => setDepositType('mxn')}
+          >
+            Deposit MXN
+          </button>
+        </div>
+
+        <div className="deposit-limits">
         <div className="limit-row">
           <span className="limit-label">Monthly fiat deposit limit:</span>
           <span className="limit-value">$0.00 / $1,000,000.00</span>
@@ -370,8 +396,8 @@ function App() {
         <div className="bank-field">
           <label>CLABE</label>
           <div className="field-value">
-            <span>710969000000411457</span>
-            <button className="copy-btn" aria-label="Copy CLABE" onClick={() => copyToClipboard('710969000000411457')}>
+            <span>{currentDetails.clabe}</span>
+            <button className="copy-btn" aria-label="Copy CLABE" onClick={() => copyToClipboard(currentDetails.clabe)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -387,6 +413,7 @@ function App() {
       </div>
     </div>
   )
+}
 
   const renderCurrentPage = () => {
     switch (activeNavSection) {
