@@ -52,6 +52,24 @@ body {
   opacity: 0.9;
 }
 
+/* Logo Section */
+.logo-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.baalam-logo {
+  max-width: 500px;
+  max-height: 900px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
 /* Main Content */
 .main {
   flex: 1;

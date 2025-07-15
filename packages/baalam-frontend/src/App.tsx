@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import baalamLogo from './assets/baalam.png'
 import './App.css'
 
 function App() {
@@ -34,6 +35,14 @@ function App() {
         <h1>🏛️ Baalam Fintech</h1>
         <p>Financial Technology Services Dashboard</p>
       </header>
+
+      <div className="logo-section" style={{backgroundColor: '#fdfbf7'}}>
+        <img
+          src={baalamLogo}
+          alt="Baalam Fintech Logo"
+          className="baalam-logo"
+        />
+      </div>
 
       <main className="main">
         <section className="services-grid">
