@@ -4,6 +4,7 @@ import './App.css'
 
 function App() {
   const [activeService, setActiveService] = useState<string | null>(null)
+  const [activeNavSection, setActiveNavSection] = useState<string>('home')
 
   const services = [
     {
@@ -29,11 +30,27 @@ function App() {
     }
   ]
 
+  const navigationSections = [
+    { id: 'home', label: 'Home' },
+    { id: 'deposit', label: 'Deposit' },
+    { id: 'arbitrage', label: 'Arbitrage' },
+    { id: 'trading-bot', label: 'Trading Bot' }
+  ]
+
   return (
     <div className="app">
       <header className="header">
-        <h1>🏛️ Baalam Fintech</h1>
-        <p>Financial Technology Services Dashboard</p>
+        <nav className="header-nav">
+          {navigationSections.map((section) => (
+            <button
+              key={section.id}
+              className={`nav-button ${activeNavSection === section.id ? 'active' : ''}`}
+              onClick={() => setActiveNavSection(section.id)}
+            >
+              {section.label}
+            </button>
+          ))}
+        </nav>
       </header>
 
       <div className="logo-section" style={{backgroundColor: '#fdfbf7'}}>
