@@ -78,8 +78,8 @@ runner.test('HMAC signature generation should be correct', () => {
   return signature === manualSignature && signature.length === 64;
 });
 
-// Test 4: Authorization header creation
-runner.test('Authorization header creation should include required fields', () => {
+// Test 4: Authorization header creation with body
+runner.test('Authorization header creation should include required fields for POST', () => {
   const headers = authenticator.authenticateRequest({
     method: 'POST',
     path: '/spei/test/deposits',
@@ -89,6 +89,17 @@ runner.test('Authorization header creation should include required fields', () =
   return headers.hasOwnProperty('Content-Type') &&
          headers.hasOwnProperty('Authorization') &&
          headers['Content-Type'] === 'application/json';
+});
+
+// Test 4b: Authorization header creation without body
+runner.test('Authorization header creation should not include Content-Type for GET', () => {
+  const headers = authenticator.authenticateRequest({
+    method: 'GET',
+    path: '/spei/v1/clabes'
+  });
+
+  return !headers.hasOwnProperty('Content-Type') &&
+         headers.hasOwnProperty('Authorization');
 });
 
 // Test 5: Base64 decoding of auth header

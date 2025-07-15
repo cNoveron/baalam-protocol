@@ -1,8 +1,9 @@
 import { createHMACAuthenticator } from './auth';
+import { createJunoAPIClient } from './juno-api-client';
 
 export interface SPEIDeposit {
   id: string;
-  amount: number;
+  amount: string;
   currency: 'MXN';
   sender_clabe: string;
   sender_name: string;
@@ -11,20 +12,25 @@ export interface SPEIDeposit {
   reference: string;
   timestamp: Date;
   status: 'pending' | 'completed' | 'failed';
+  tracking_code?: string;
+  tracking_key?: string;
 }
 
 export class SPEIDepositService {
   private deposits: SPEIDeposit[] = [];
   private authenticator: ReturnType<typeof createHMACAuthenticator> | null;
+  private junoClient: ReturnType<typeof createJunoAPIClient> | null;
 
   constructor() {
     console.log('🏦 Mexican SPEI Deposits Service initialized');
     try {
       this.authenticator = createHMACAuthenticator();
+      this.junoClient = createJunoAPIClient();
       console.log('🔐 HMAC Authentication initialized successfully');
     } catch (error) {
       console.warn('⚠️ HMAC Authentication not available:', error);
       this.authenticator = null;
+      this.junoClient = null;
     }
   }
 
@@ -47,19 +53,63 @@ export class SPEIDepositService {
     return newDeposit;
   }
 
+  /**
+   * Get a valid AUTO_PAYMENT CLABE for deposits
+   */
+  async getValidReceiverCLABE(): Promise<string> {
+    if (!this.junoClient) {
+      throw new Error('Juno API client not available. Please check your API credentials.');
+    }
+
+    try {
+      const autoPaymentCLABEs = await this.junoClient.getAutoPaymentCLABEs();
+
+      if (autoPaymentCLABEs.length === 0) {
+        throw new Error('No AUTO_PAYMENT CLABEs available for deposits');
+      }
+
+      const selectedCLABE = autoPaymentCLABEs[0];
+      console.log(`🏦 Using AUTO_PAYMENT CLABE: ${selectedCLABE.clabe}`);
+
+      return selectedCLABE.clabe;
+    } catch (error) {
+      console.error('❌ Failed to get AUTO_PAYMENT CLABE:', error);
+      throw error;
+    }
+  }
+
+    /**
+   * Create a deposit with automatic receiver CLABE selection
+   */
+  async createDepositWithAutoReceiverCLABE(depositData: {
+    amount: string;
+    currency: 'MXN';
+    sender_clabe: string;
+    sender_name: string;
+    receiver_name: string;
+    reference: string;
+  }): Promise<SPEIDeposit> {
+    const receiverCLABE = await this.getValidReceiverCLABE();
+
+    return this.processDeposit({
+      ...depositData,
+      receiver_clabe: receiverCLABE
+    });
+  }
+
   private async simulateProcessing(deposit: SPEIDeposit): Promise<void> {
     try {
       console.log(`🔄 Simulating SPEI deposit via Juno API...`);
 
-      // Prepare the request body with the deposit data
+      // Prepare the request body with the deposit data (following Juno API spec)
       const requestBody = {
         amount: deposit.amount,
-        currency: deposit.currency,
-        sender_clabe: deposit.sender_clabe,
-        sender_name: deposit.sender_name,
         receiver_clabe: deposit.receiver_clabe,
         receiver_name: deposit.receiver_name,
-        reference: deposit.reference
+        sender_clabe: deposit.sender_clabe,
+        sender_name: deposit.sender_name,
+        sender_curp: "",
+        receiver_curp: ""
       };
 
       let response: Response;

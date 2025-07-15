@@ -55,15 +55,22 @@ import { createJunoAPIClient } from './src/juno-api-client';
 // Create API client
 const client = createJunoAPIClient();
 
-// Create a SPEI deposit
+// First, get account details to find AUTO_PAYMENT CLABEs
+const accountDetails = await client.getAccountDetails('AUTO_PAYMENT');
+const autoPaymentCLABEs = await client.getAutoPaymentCLABEs();
+
+// Use the first available AUTO_PAYMENT CLABE
+const receiverCLABE = autoPaymentCLABEs[0].clabe;
+
+// Create a SPEI deposit with the correct receiver CLABE
 const deposit = await client.createSPEIDeposit({
-  amount: 1500,
-  currency: 'MXN',
+  amount: "1500",
+  receiver_clabe: receiverCLABE,
+  receiver_name: 'Your Business Name',
   sender_clabe: '012345678901234567',
-  sender_name: 'Carlos López',
-  receiver_clabe: '987654321098765432',
-  receiver_name: 'Ana Martínez',
-  reference: 'PAYMENT-002'
+  sender_name: 'Your Business Name',
+  sender_curp: "",
+  receiver_curp: ""
 });
 
 // Get account balance
@@ -71,6 +78,25 @@ const balance = await client.getAccountBalance();
 
 // Get deposit history
 const deposits = await client.getSPEIDeposits(10, 0);
+```
+
+### Using SPEI Deposit Service with Auto CLABE Selection
+
+```typescript
+import { SPEIDepositService } from './src/deposit';
+
+// Create service instance
+const service = new SPEIDepositService();
+
+// Create a deposit with automatic receiver CLABE selection
+const deposit = await service.createDepositWithAutoReceiverCLABE({
+  amount: "2500",
+  currency: 'MXN',
+  sender_clabe: '012345678901234567',
+  sender_name: 'Your Business Name',
+  receiver_name: 'Your Business Name',
+  reference: 'AUTO-CLABE-001'
+});
 ```
 
 ## HMAC Authentication Details
@@ -144,6 +170,12 @@ class JunoAPIClient {
 
   // Get account balance
   getAccountBalance(): Promise<AccountBalance[]>
+
+  // Get account details including CLABEs
+  getAccountDetails(clabeType?: 'AUTO_PAYMENT' | 'MANUAL_PAYMENT'): Promise<AccountDetailsResponse>
+
+  // Get AUTO_PAYMENT CLABEs for deposits
+  getAutoPaymentCLABEs(): Promise<CLABEInfo[]>
 
   // Get SPEI deposits history
   getSPEIDeposits(limit?: number, offset?: number): Promise<SPEIDepositResponse[]>

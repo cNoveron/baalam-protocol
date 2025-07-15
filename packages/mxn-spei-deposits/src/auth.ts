@@ -76,10 +76,16 @@ export class HMACAuthenticator {
     const signature = this.generateSignature(signatureString);
     const authPayload = this.createAuthPayload(nonce, signature);
 
-    return {
-      'Content-Type': 'application/json',
+    const headers: Record<string, string> = {
       'Authorization': authPayload
     };
+
+    // Only add Content-Type for requests with bodies
+    if (request.body !== undefined) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    return headers;
   }
 
   /**
