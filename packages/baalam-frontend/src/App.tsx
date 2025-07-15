@@ -1,10 +1,135 @@
 import { useState } from 'react'
 import baalamLogo from './assets/baalam.png'
 import './App.css'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js'
+import { Line } from 'react-chartjs-2'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+)
 
 function App() {
   const [activeService, setActiveService] = useState<string | null>(null)
   const [activeNavSection, setActiveNavSection] = useState<string>('home')
+
+  // Portfolio evolution data
+  const generatePortfolioData = (baseValue: number, volatility: number = 0.05) => {
+    const labels = []
+    const data = []
+    const now = new Date()
+
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(now)
+      date.setDate(date.getDate() - i)
+      labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))
+
+      // Generate realistic portfolio evolution with some randomness
+      const trend = i < 15 ? 1.002 : 0.998 // Slight upward trend recently
+      const randomFactor = 1 + (Math.random() - 0.5) * volatility
+      const value = baseValue * Math.pow(trend, 30 - i) * randomFactor
+      data.push(value)
+    }
+
+    return { labels, data }
+  }
+
+  const arbitragePortfolioData = generatePortfolioData(25000, 0.03)
+  const tradingBotPortfolioData = generatePortfolioData(28000, 0.08)
+
+  const createChartData = (portfolioData: { labels: string[], data: number[] }, color: string) => ({
+    labels: portfolioData.labels,
+    datasets: [
+      {
+        label: 'Portfolio Value',
+        data: portfolioData.data,
+        borderColor: color,
+        backgroundColor: `${color}20`,
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: color,
+        pointHoverBorderColor: '#ffffff',
+        pointHoverBorderWidth: 2,
+      },
+    ],
+  })
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        mode: 'index' as const,
+        intersect: false,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: '#3a1c2a',
+        borderWidth: 1,
+        cornerRadius: 8,
+        displayColors: false,
+        callbacks: {
+          label: (context: { parsed: { y: number } }) => `$${context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        display: true,
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: '#64748b',
+          font: {
+            size: 12,
+          },
+          maxTicksLimit: 6,
+        },
+      },
+      y: {
+        display: true,
+        grid: {
+          color: '#e2e8f0',
+          drawBorder: false,
+        },
+        ticks: {
+          color: '#64748b',
+          font: {
+            size: 12,
+          },
+          callback: (value: string | number) => `$${Number(value).toLocaleString()}`,
+        },
+      },
+    },
+    interaction: {
+      mode: 'nearest' as const,
+      axis: 'x' as const,
+      intersect: false,
+    },
+  }
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -106,7 +231,21 @@ function App() {
     <div className="arbitrage-layout">
       <div className="arbitrage-main">
         <div className="arbitrage-panel">
-          {/* Empty rectangular panel for arbitrage content */}
+          <div className="panel-header">
+            <h3>Arbitrage Portfolio Evolution</h3>
+            <div className="panel-stats">
+              <span className="current-value">
+                ${arbitragePortfolioData.data[arbitragePortfolioData.data.length - 1].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <span className="change-indicator positive">+2.3%</span>
+            </div>
+          </div>
+          <div className="chart-container">
+            <Line
+              data={createChartData(arbitragePortfolioData, '#3a1c2a')}
+              options={chartOptions}
+            />
+          </div>
         </div>
       </div>
 
@@ -137,7 +276,21 @@ function App() {
     <div className="trading-bot-layout">
       <div className="trading-bot-main">
         <div className="trading-bot-panel">
-          {/* Empty rectangular panel for arbitrage content */}
+          <div className="panel-header">
+            <h3>Trading Bot Portfolio Evolution</h3>
+            <div className="panel-stats">
+              <span className="current-value">
+                ${tradingBotPortfolioData.data[tradingBotPortfolioData.data.length - 1].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <span className="change-indicator positive">+4.1%</span>
+            </div>
+          </div>
+          <div className="chart-container">
+            <Line
+              data={createChartData(tradingBotPortfolioData, '#7f581e')}
+              options={chartOptions}
+            />
+          </div>
         </div>
       </div>
 

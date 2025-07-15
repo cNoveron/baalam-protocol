@@ -335,15 +335,55 @@ code {
   position: relative;
 }
 
-.arbitrage-panel::before {
-  content: "Arbitrage Trading Panel";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--text-secondary);
-  font-size: 1.2rem;
-  font-weight: 500;
+.arbitrage-panel .panel-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.arbitrage-panel .panel-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.arbitrage-panel .panel-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.arbitrage-panel .current-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+.arbitrage-panel .change-indicator {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.arbitrage-panel .change-indicator.positive {
+  color: var(--success-color);
+  background-color: #d1fae5;
+}
+
+.arbitrage-panel .change-indicator.negative {
+  color: var(--error-color);
+  background-color: #fee2e2;
+}
+
+.arbitrage-panel .chart-container {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  height: calc(100% - 80px);
+  min-height: 300px;
 }
 
 .arbitrage-sidebar {
@@ -375,15 +415,55 @@ code {
   position: relative;
 }
 
-.trading-bot-panel::before {
-  content: "Trading Bot Control Panel";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--text-secondary);
-  font-size: 1.2rem;
-  font-weight: 500;
+.trading-bot-panel .panel-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trading-bot-panel .panel-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.trading-bot-panel .panel-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.trading-bot-panel .current-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+.trading-bot-panel .change-indicator {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.trading-bot-panel .change-indicator.positive {
+  color: var(--success-color);
+  background-color: #d1fae5;
+}
+
+.trading-bot-panel .change-indicator.negative {
+  color: var(--error-color);
+  background-color: #fee2e2;
+}
+
+.trading-bot-panel .chart-container {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  height: calc(100% - 80px);
+  min-height: 300px;
 }
 
 .trading-bot-sidebar {
@@ -682,6 +762,27 @@ code {
     min-height: 300px;
   }
 
+  .arbitrage-panel .panel-header {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .arbitrage-panel .panel-stats {
+    gap: 0.5rem;
+  }
+
+  .arbitrage-panel .current-value {
+    font-size: 1.25rem;
+  }
+
+  .arbitrage-panel .chart-container {
+    padding: 1rem;
+    height: 250px;
+    min-height: 250px;
+  }
+
   /* Trading Bot page mobile styles */
   .trading-bot-layout {
     flex-direction: column;
@@ -696,6 +797,27 @@ code {
 
   .trading-bot-panel {
     min-height: 300px;
+  }
+
+  .trading-bot-panel .panel-header {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .trading-bot-panel .panel-stats {
+    gap: 0.5rem;
+  }
+
+  .trading-bot-panel .current-value {
+    font-size: 1.25rem;
+  }
+
+  .trading-bot-panel .chart-container {
+    padding: 1rem;
+    height: 250px;
+    min-height: 250px;
   }
 
   .action-buttons {
