@@ -5,6 +5,7 @@ config();
 
 import { log, setupGracefulShutdown } from './utils';
 import { monitorChains, setupWebSocketMonitoring, monitorPrices } from './arbitrage';
+import { getWebSocketServer, closeWebSocketServer } from './websocket-server';
 
 // Main function
 async function main(): Promise<void> {
@@ -13,6 +14,10 @@ async function main(): Promise<void> {
 
     // Setup graceful shutdown
     setupGracefulShutdown();
+
+    // Start WebSocket server for frontend communication
+    const wsServer = getWebSocketServer();
+    log('WebSocket server started for frontend communication');
 
     // Start WebSocket monitoring
     await setupWebSocketMonitoring();
@@ -25,6 +30,7 @@ async function main(): Promise<void> {
 
   } catch (error) {
     log(`Fatal error: ${error}`, 'error');
+    closeWebSocketServer();
     process.exit(1);
   }
 }

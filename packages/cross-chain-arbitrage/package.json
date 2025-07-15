@@ -14,10 +14,12 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.3.1",
-    "viem": "^2.7.9"
+    "viem": "^2.7.9",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
+    "@types/ws": "^8.5.10",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.2"
   }

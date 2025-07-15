@@ -1,4 +1,5 @@
 import { CONFIG } from './clients';
+import { closeWebSocketServer } from './websocket-server';
 
 // Utility functions
 export const sleep = (ms: number): Promise<void> =>
@@ -34,6 +35,7 @@ export async function withRetry<T>(
 export function setupGracefulShutdown(): void {
   const shutdown = (signal: string) => {
     log(`Received ${signal}, shutting down gracefully...`);
+    closeWebSocketServer();
     process.exit(0);
   };
 

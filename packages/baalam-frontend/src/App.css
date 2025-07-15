@@ -531,11 +531,174 @@ code {
   margin-top: 2rem;
 }
 
-.action-buttons .btn-primary,
+  .action-buttons .btn-primary,
 .action-buttons .btn-secondary {
   width: 100%;
   justify-content: center;
   text-align: center;
+}
+
+/* Connection indicator */
+.connection-indicator {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.connection-indicator.connected {
+  color: var(--success-color);
+}
+
+.connection-indicator.disconnected {
+  color: var(--error-color);
+}
+
+/* Balance details */
+.balance-detail {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+/* Price difference section */
+.price-diff-section {
+  margin-bottom: 1.5rem;
+}
+
+.price-diff-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.price-diff {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-diff .percentage {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.price-diff .direction {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Stats section */
+.stats-section {
+  margin-bottom: 1.5rem;
+}
+
+.stats-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.stat-item .stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.stat-item .stat-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.no-data {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Recent trades section */
+.recent-trades-section {
+  margin-bottom: 1.5rem;
+}
+
+.recent-trades-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.trades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trade-item {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.trade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.trade-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: rgba(58, 28, 42, 0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
+
+.trade-timestamp {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.trade-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trade-route {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.trade-profit {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.trade-profit.positive {
+  color: var(--success-color);
+}
+
+.trade-profit.negative {
+  color: var(--error-color);
 }
 
 /* Page Placeholder */

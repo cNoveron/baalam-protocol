@@ -13,6 +13,7 @@ import {
   Filler,
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
+import { useArbitrageWebSocket } from './hooks/useArbitrageWebSocket'
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +29,9 @@ ChartJS.register(
 function App() {
   const [activeNavSection, setActiveNavSection] = useState<string>('home')
   const [depositType, setDepositType] = useState<string>('mxnb') // 'mxnb' or 'mxn'
+
+  // WebSocket connection for real-time arbitrage data
+  const arbitrageData = useArbitrageWebSocket()
 
   // Portfolio evolution data
   const generatePortfolioData = (baseValue: number, volatility: number = 0.05) => {
@@ -199,13 +203,21 @@ function App() {
         <div className="stats-grid">
           <div className="stat-card">
             <h4>Total Portfolio</h4>
-            <div className="stat-value">$47,892.35</div>
-            <div className="stat-indicator positive">+1.2%</div>
+            <div className="stat-value">
+              ${(arbitrageData.getTotalPortfolioValue() + tradingBotPortfolioData.data[tradingBotPortfolioData.data.length - 1]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+            <div className="stat-indicator positive">
+              {arbitrageData.connected ? '🟢 Live' : '🔴 Offline'}
+            </div>
           </div>
           <div className="stat-card">
             <h4>Arbitrage</h4>
-            <div className="stat-value">${arbitragePortfolioData.data[arbitragePortfolioData.data.length - 1].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            <div className="stat-indicator positive">+2.3%</div>
+            <div className="stat-value">
+              ${arbitrageData.getTotalPortfolioValue().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+            <div className="stat-indicator positive">
+              {arbitrageData.stats ? `+$${arbitrageData.stats.totalProfit.toFixed(2)}` : '+$0.00'}
+            </div>
           </div>
           <div className="stat-card">
             <h4>Trading Bot</h4>
@@ -217,50 +229,148 @@ function App() {
     </>
   )
 
-  const renderArbitragePage = () => (
-    <div className="arbitrage-layout">
-      <div className="arbitrage-main">
-        <div className="arbitrage-panel">
-          <div className="panel-header">
-            <h3>Arbitrage Portfolio Evolution</h3>
-            <div className="panel-stats">
-              <span className="current-value">
-                ${arbitragePortfolioData.data[arbitragePortfolioData.data.length - 1].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className="change-indicator positive">+2.3%</span>
+  const renderArbitragePage = () => {
+    const totalPortfolioValue = arbitrageData.getTotalPortfolioValue();
+    const priceDiff = arbitrageData.getPriceDifference();
+
+    // Create chart data from real-time portfolio history
+    const portfolioChartData = arbitrageData.portfolioHistory.length > 0 ? {
+      labels: arbitrageData.portfolioHistory.map(point =>
+        new Date(point.timestamp).toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      ),
+      data: arbitrageData.portfolioHistory.map(point => point.value)
+    } : arbitragePortfolioData; // Fallback to mock data
+
+    return (
+      <div className="arbitrage-layout">
+        <div className="arbitrage-main">
+          <div className="arbitrage-panel">
+            <div className="panel-header">
+              <h3>
+                Arbitrage Portfolio Evolution
+                <span className={`connection-indicator ${arbitrageData.connected ? 'connected' : 'disconnected'}`}>
+                  {arbitrageData.connected ? '🟢' : '🔴'}
+                </span>
+              </h3>
+              <div className="panel-stats">
+                <span className="current-value">
+                  ${totalPortfolioValue > 0 ? totalPortfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                </span>
+                <span className="change-indicator positive">
+                  {arbitrageData.stats ? `+${arbitrageData.stats.totalProfit.toFixed(2)}` : '+0.00'}
+                </span>
+              </div>
+            </div>
+            <div className="chart-container">
+              <Line
+                data={createChartData(portfolioChartData, '#3a1c2a')}
+                options={chartOptions}
+              />
             </div>
           </div>
-          <div className="chart-container">
-            <Line
-              data={createChartData(arbitragePortfolioData, '#3a1c2a')}
-              options={chartOptions}
-            />
+        </div>
+
+        <div className="arbitrage-sidebar">
+          <div className="portfolio-section">
+            <h3>Portfolio</h3>
+
+            <div className="balance-item">
+              <label>Avalanche Balance</label>
+              <div className="balance-value">
+                ${arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.total.toFixed(2) : '0.00'}
+              </div>
+              <div className="balance-detail">
+                USDC: {arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.usdc.toFixed(2) : '0.00'} |
+                USDT: {arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.usdt.toFixed(2) : '0.00'}
+              </div>
+            </div>
+
+            <div className="balance-item">
+              <label>Sonic Balance</label>
+              <div className="balance-value">
+                ${arbitrageData.balances.sonic ? arbitrageData.balances.sonic.total.toFixed(2) : '0.00'}
+              </div>
+              <div className="balance-detail">
+                USDC: {arbitrageData.balances.sonic ? arbitrageData.balances.sonic.usdc.toFixed(2) : '0.00'} |
+                USDT: {arbitrageData.balances.sonic ? arbitrageData.balances.sonic.usdt.toFixed(2) : '0.00'}
+              </div>
+            </div>
+
+            <div className="price-diff-section">
+              <h4>Price Difference</h4>
+              {priceDiff ? (
+                <div className="price-diff">
+                  <span className="percentage">{priceDiff.percentage.toFixed(4)}%</span>
+                  <span className="direction">{priceDiff.direction === 'avalanche_higher' ? '↑ AVA' : '↓ SON'}</span>
+                </div>
+              ) : (
+                <span className="no-data">No price data</span>
+              )}
+            </div>
+
+            <div className="stats-section">
+              <h4>Trading Stats</h4>
+              {arbitrageData.stats ? (
+                <div className="stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">Total Trades</span>
+                    <span className="stat-value">{arbitrageData.stats.totalTrades}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Win Rate</span>
+                    <span className="stat-value">{arbitrageData.stats.winRate.toFixed(1)}%</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Total Profit</span>
+                    <span className="stat-value">${arbitrageData.stats.totalProfit.toFixed(4)}</span>
+                  </div>
+                </div>
+              ) : (
+                <span className="no-data">No stats data</span>
+              )}
+            </div>
+
+            <div className="recent-trades-section">
+              <h4>Recent Trades</h4>
+              {arbitrageData.recentTrades.length > 0 ? (
+                <div className="trades-list">
+                  {arbitrageData.recentTrades.slice(0, 5).map((trade, index) => (
+                    <div key={index} className="trade-item">
+                      <div className="trade-header">
+                        <span className="trade-type">{trade.type}</span>
+                        <span className="trade-timestamp">
+                          {new Date(trade.timestamp).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                      <div className="trade-details">
+                        <span className="trade-route">{trade.sourceChain} → {trade.targetChain}</span>
+                        <span className={`trade-profit ${trade.netProfit > 0 ? 'positive' : 'negative'}`}>
+                          ${trade.netProfit.toFixed(4)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="no-data">No recent trades</span>
+              )}
+            </div>
+
+            <div className="action-buttons">
+              <button className="btn-primary">Deposit</button>
+              <button className="btn-secondary">Withdraw</button>
+            </div>
           </div>
         </div>
       </div>
-
-      <div className="arbitrage-sidebar">
-        <div className="portfolio-section">
-          <h3>Portfolio</h3>
-
-          <div className="balance-item">
-            <label>MXNB in Portfolio</label>
-            <div className="balance-value">$25,430.50</div>
-          </div>
-
-          <div className="balance-item">
-            <label>MXNB in Arbitrage</label>
-            <div className="balance-value">$12,875.25</div>
-          </div>
-
-          <div className="action-buttons">
-            <button className="btn-primary">Deposit</button>
-            <button className="btn-secondary">Withdraw</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    );
+  }
 
   const renderTradingBotPage = () => (
     <div className="trading-bot-layout">

@@ -11,6 +11,7 @@ import {
   getAllPoolMetadata,
   type PoolMetadata
 } from './getters';
+import { getWebSocketServer } from './websocket-server';
 
 // Paper trading balance tracking
 export interface TokenBalance {
@@ -190,7 +191,7 @@ export async function executeUSDCTargetedArbitrage(
       };
 
       // Record the paper trade
-      addPaperTrade({
+      const trade = {
         sourceChain: buyChain,
         targetChain: sellChain,
         sourcePrice: buyPriceUSDCperUSDT,
@@ -199,7 +200,17 @@ export async function executeUSDCTargetedArbitrage(
         profit: grossProfitUSDC,
         gasCost: gasCostUSD,
         netProfit: netProfitUSD,
-        status: 'executed'
+        status: 'executed' as const
+      };
+
+      addPaperTrade(trade);
+
+      // Broadcast trade execution to WebSocket clients
+      const wsServer = getWebSocketServer();
+      wsServer.broadcastTradeExecuted({
+        ...trade,
+        type: 'USDC_TARGETED',
+        timestamp: Date.now()
       });
 
       // Update balances
@@ -292,7 +303,7 @@ export async function executeUSDTTargetedArbitrage(
       };
 
       // Record the paper trade
-      addPaperTrade({
+      const trade = {
         sourceChain: buyChain,
         targetChain: sellChain,
         sourcePrice: buyPriceUSDTperUSDC,
@@ -301,7 +312,17 @@ export async function executeUSDTTargetedArbitrage(
         profit: grossProfitUSDT,
         gasCost: gasCostUSD,
         netProfit: netProfitUSD,
-        status: 'executed'
+        status: 'executed' as const
+      };
+
+      addPaperTrade(trade);
+
+      // Broadcast trade execution to WebSocket clients
+      const wsServer = getWebSocketServer();
+      wsServer.broadcastTradeExecuted({
+        ...trade,
+        type: 'USDT_TARGETED',
+        timestamp: Date.now()
       });
 
       // Update balances
@@ -373,6 +394,11 @@ async function checkArbitrageOpportunities(): Promise<void> {
     if (!avalanchePrice || !sonicPrice) {
       return; // Wait for both prices to be available
     }
+
+    // Broadcast price updates to WebSocket clients
+    const wsServer = getWebSocketServer();
+    wsServer.broadcastPriceUpdate('avalanche', avalanchePrice);
+    wsServer.broadcastPriceUpdate('sonic', sonicPrice);
 
     // Log current balances before checking arbitrage
     logBalances();
@@ -473,6 +499,31 @@ function logBalances(): void {
   log(`    Win Rate: ${stats.winRate.toFixed(1)}%`);
 
   log('─'.repeat(50));
+
+  // Broadcast balance updates to WebSocket clients
+  const wsServer = getWebSocketServer();
+  wsServer.broadcastBalanceUpdate('avalanche', {
+    usdc: avalancheBalance.usdc,
+    usdt: avalancheBalance.usdt,
+    total: avalancheValue,
+    timestamp: avalancheBalance.timestamp
+  });
+  wsServer.broadcastBalanceUpdate('sonic', {
+    usdc: sonicBalance.usdc,
+    usdt: sonicBalance.usdt,
+    total: sonicValue,
+    timestamp: sonicBalance.timestamp
+  });
+
+  // Broadcast stats update
+  wsServer.broadcastStatsUpdate({
+    totalTrades: stats.totalTrades,
+    profitableTrades: stats.profitableTrades,
+    totalProfit: stats.totalProfit,
+    winRate: stats.winRate,
+    totalPortfolioValue: totalValue,
+    timestamp: Date.now()
+  });
 }
 
 // Determine which token we're running low on across all chains
@@ -566,6 +617,22 @@ async function checkUSDCTargetedArbitrage(
 
   if (netProfitUSD > CONFIG.PROFIT_THRESHOLD) {
     log(`🚨 ARBITRAGE OPPORTUNITY FOUND! ${netProfitUSD.toFixed(6)} USD profit`, 'info');
+
+    // Broadcast opportunity to WebSocket clients
+    const wsServer = getWebSocketServer();
+    wsServer.broadcastOpportunityFound({
+      type: 'USDC_TARGETED',
+      buyChain,
+      sellChain,
+      buyPrice: buyPriceUSDCperUSDT,
+      sellPrice: sellPriceUSDCperUSDT,
+      tradeAmount: tradeAmountUSDC,
+      grossProfit: grossProfitUSDC,
+      netProfit: netProfitUSD,
+      threshold: CONFIG.PROFIT_THRESHOLD,
+      timestamp: Date.now()
+    });
+
     await executeUSDCTargetedArbitrage(buyChain, sellChain, buyPriceUSDCperUSDT, sellPriceUSDCperUSDT, tradeAmountUSDC);
   } else {
     log(`USDC-targeted arbitrage not profitable after gas costs (Net: $${netProfitUSD.toFixed(6)}, Threshold: $${CONFIG.PROFIT_THRESHOLD})`, 'warn');
@@ -622,6 +689,22 @@ async function checkUSDTTargetedArbitrage(
 
   if (netProfitUSD > CONFIG.PROFIT_THRESHOLD) {
     log(`🚨 ARBITRAGE OPPORTUNITY FOUND! ${netProfitUSD.toFixed(6)} USD profit`, 'info');
+
+    // Broadcast opportunity to WebSocket clients
+    const wsServer = getWebSocketServer();
+    wsServer.broadcastOpportunityFound({
+      type: 'USDT_TARGETED',
+      buyChain,
+      sellChain,
+      buyPrice: buyPriceUSDTperUSDC,
+      sellPrice: sellPriceUSDTperUSDC,
+      tradeAmount: tradeAmountUSDT,
+      grossProfit: grossProfitUSDT,
+      netProfit: netProfitUSD,
+      threshold: CONFIG.PROFIT_THRESHOLD,
+      timestamp: Date.now()
+    });
+
     await executeUSDTTargetedArbitrage(buyChain, sellChain, buyPriceUSDTperUSDC, sellPriceUSDTperUSDC, tradeAmountUSDT);
   } else {
     log(`USDT-targeted arbitrage not profitable after gas costs (Net: $${netProfitUSD.toFixed(6)}, Threshold: $${CONFIG.PROFIT_THRESHOLD})`, 'warn');
