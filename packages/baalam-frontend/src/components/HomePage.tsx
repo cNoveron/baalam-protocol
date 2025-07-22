@@ -16,14 +16,14 @@ export const HomePage = ({
   const services = [
     {
       id: 'arbitrage-investment',
-      name: 'DeFi Arbitrage',
-      description: 'Take advantage of price differences across Decentralized Exchanges on Ethereum Mainnet and Arbitrum networks. Our automated system identifies and executes profitable opportunities while you sleep, delivering consistent returns with lower risk through market-neutral strategies.',
+      name: 'DeFi Strategy Bots',
+      description: 'Take advantage of short term price differences and long term price action across Decentralized Exchanges on different networks. Our automated system identifies and executes profitable opportunities while you sleep, delivering consistent returns with lower risk through market-neutral strategies.',
       status: 'active'
     },
     {
       id: 'trading-bot-investment',
-      name: 'AI Trading Bot',
-      description: 'Let our intelligent trading algorithm work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and stop-loss mechanisms.',
+      name: 'CEX Trading Bots',
+      description: 'Let our intelligent trading algorithms work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and risk-reduction mechanisms.',
       status: 'active'
     }
   ]
@@ -72,7 +72,7 @@ export const HomePage = ({
             </div>
           </div>
           <div className="stat-card">
-            <h4>Arbitrage</h4>
+            <h4>On Chain / DeFi</h4>
             <div className="stat-value">
               ${arbitrageData.getTotalPortfolioValue().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
@@ -81,7 +81,7 @@ export const HomePage = ({
             </div>
           </div>
           <div className="stat-card">
-            <h4>Trading Bot</h4>
+            <h4>Off Chain / CeFi</h4>
             <div className="stat-value">${tradingBotPortfolioData.data[tradingBotPortfolioData.data.length - 1].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             <div className="stat-indicator positive">+4.1%</div>
           </div>
