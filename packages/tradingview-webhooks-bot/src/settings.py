@@ -1,9 +1,9 @@
 # actions
-REGISTERED_ACTIONS = ['BitsoSpot']
+REGISTERED_ACTIONS = ['RecallSpot']
 
 # events
 REGISTERED_EVENTS = ['WebhookReceived']
 
 # links
-REGISTERED_LINKS = [('BitsoSpot', 'WebhookReceived')]
+REGISTERED_LINKS = [('RecallSpot', 'WebhookReceived')]
 
