@@ -50,7 +50,7 @@ const authenticator = new HMACAuthenticator(testConfig);
 runner.test('Nonce generation should be unique and increasing', () => {
   const nonce1 = (authenticator as any).generateNonce();
   const nonce2 = (authenticator as any).generateNonce();
-  return nonce2 > nonce1 && typeof nonce1 === 'number' && typeof nonce2 === 'number';
+  return nonce2 > nonce1 && typeof nonce1 === 'string' && typeof nonce2 === 'string';
 });
 
 // Test 2: Signature string building

@@ -14,7 +14,7 @@ export interface AuthenticatedRequest {
 export class HMACAuthenticator {
   private apiKey: string;
   private apiSecret: string;
-  private lastNonce: number = 0;
+  private lastNonce: string = '';
 
   constructor(config: HMACAuthConfig) {
     this.apiKey = config.apiKey;
@@ -25,10 +25,15 @@ export class HMACAuthenticator {
    * Generate a unique nonce that increases with each API call
    * Uses UNIX timestamp with additional uniqueness
    */
-  private generateNonce(): number {
-    const timestamp = Math.floor(Date.now() / 1000);
-    // Ensure nonce is always increasing
-    this.lastNonce = Math.max(this.lastNonce + 1, timestamp);
+  private generateNonce(): string {
+    // Get current timestamp in milliseconds (13 digits)
+    const timestamp = Date.now();
+
+    // Generate random salt (6 digits)
+    const salt = Math.floor(100000 + Math.random() * 900000); // Range: 100000-999999
+
+    // Concatenate timestamp and salt
+    this.lastNonce = `${timestamp}${salt}`;
     return this.lastNonce;
   }
 
@@ -36,7 +41,7 @@ export class HMACAuthenticator {
    * Build the signature string according to Juno's specification:
    * nonce + HTTP method + request path + JSON payload
    */
-  private buildSignatureString(nonce: number, method: string, path: string, payload?: any): string {
+  private buildSignatureString(nonce: string, method: string, path: string, payload?: any): string {
     const jsonPayload = payload ? JSON.stringify(payload) : '';
     return `${nonce}${method}${path}${jsonPayload}`;
   }
@@ -53,7 +58,7 @@ export class HMACAuthenticator {
   /**
    * Create authorization header payload
    */
-  private createAuthPayload(nonce: number, signature: string): string {
+  private createAuthPayload(nonce: string, signature: string): string {
     const authData = {
       key: this.apiKey,
       nonce: nonce,
