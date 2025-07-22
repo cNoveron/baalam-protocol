@@ -642,13 +642,15 @@ function App() {
         </nav>
       </header>
 
-      <div className="logo-section" style={{backgroundColor: '#fdfbf7'}}>
-        <img
-          src={baalamLogo}
-          alt="Baalam Fintech Logo"
-          className="baalam-logo"
-        />
-      </div>
+      {!['deposit', 'on-chain', 'off-chain'].includes(activeNavSection) && (
+        <div className="logo-section" style={{backgroundColor: '#fdfbf7'}}>
+          <img
+            src={baalamLogo}
+            alt="Baalam Fintech Logo"
+            className="baalam-logo"
+          />
+        </div>
+      )}
 
       <main className="main">
         {renderCurrentPage()}

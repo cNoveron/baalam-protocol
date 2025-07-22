@@ -99,8 +99,8 @@ body {
 }
 
 .baalam-logo {
-  max-width: 500px;
-  max-height: 900px;
+  max-width: 100px;
+  max-height: 300px;
   width: auto;
   height: auto;
   object-fit: contain;
