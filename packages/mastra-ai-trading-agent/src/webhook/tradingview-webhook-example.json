@@ -1,0 +1,8 @@
+{
+  "symbol": "BTCUSDT",
+  "price": 45000,
+  "action": "buy",
+  "timeframe": "1h",
+  "exchange": "binance",
+  "message": "RSI below 30, potential buy signal detected"
+}

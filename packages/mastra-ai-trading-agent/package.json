@@ -1,0 +1,40 @@
+{
+  "name": "mastra-ai-trading-agent",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "mastra dev",
+    "build": "mastra build",
+    "start": "mastra start",
+    "webhook": "node src/webhook/simple-webhook-server.js",
+    "test-webhook": "node src/webhook/test-webhook.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^1.3.23",
+    "@mastra/core": "^0.10.12",
+    "@mastra/libsql": "^0.11.0",
+    "@mastra/loggers": "^0.10.3",
+    "@mastra/mcp": "^0.10.6",
+    "@mastra/memory": "^0.11.2",
+    "@types/express": "^5.0.3",
+    "csv-parse": "^6.1.0",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.13",
+    "mastra": "^0.10.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

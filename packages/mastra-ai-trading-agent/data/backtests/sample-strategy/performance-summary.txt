@@ -1,0 +1,35 @@
+Sample Strategy Performance Summary
+=====================================
+
+Strategy: RSI Mean Reversion
+Period: 2023-01-01 to 2024-01-01
+Asset: BTCUSD
+
+Key Metrics:
+- Total Return: 23.5%
+- Sharpe Ratio: 1.42
+- Maximum Drawdown: -8.3%
+- Win Rate: 58.7%
+- Profit Factor: 1.86
+- Total Trades: 247
+
+Best Performing Months:
+- March 2023: +8.2%
+- July 2023: +6.1%
+- November 2023: +5.8%
+
+Worst Performing Months:
+- September 2023: -4.1%
+- December 2023: -3.7%
+
+Risk Metrics:
+- Value at Risk (95%): -2.1%
+- Expected Shortfall: -3.2%
+- Beta to Market: 0.73
+- Correlation to BTC: 0.81
+
+Strategy Observations:
+- Performs well in sideways markets
+- Struggles during strong trending periods
+- RSI threshold of 30/70 might be too aggressive
+- Consider adding trend filter for better performance

@@ -1,0 +1,40 @@
+//@version=5
+strategy("Sample RSI Strategy", overlay=true, initial_capital=10000)
+
+// Input parameters
+rsi_length = input.int(14, "RSI Length", minval=1)
+rsi_oversold = input.int(30, "RSI Oversold Level", minval=1, maxval=100)
+rsi_overbought = input.int(70, "RSI Overbought Level", minval=1, maxval=100)
+position_size = input.float(0.1, "Position Size (% of equity)", minval=0.01, maxval=1.0)
+
+// Calculate RSI
+rsi = ta.rsi(close, rsi_length)
+
+// Entry conditions
+long_condition = ta.crossover(rsi, rsi_oversold)
+short_condition = ta.crossunder(rsi, rsi_overbought)
+
+// Position sizing
+equity_per_trade = strategy.equity * position_size
+
+// Entry orders
+if (long_condition)
+    strategy.entry("Long", strategy.long, qty=equity_per_trade/close)
+
+if (short_condition)
+    strategy.entry("Short", strategy.short, qty=equity_per_trade/close)
+
+// Exit conditions - simple take profit and stop loss
+strategy.exit("Exit Long", "Long", profit=close*0.05, loss=close*0.03)
+strategy.exit("Exit Short", "Short", profit=close*0.05, loss=close*0.03)
+
+// Plot RSI levels
+hline(rsi_overbought, "Overbought", color=color.red, linestyle=hline.style_dashed)
+hline(rsi_oversold, "Oversold", color=color.green, linestyle=hline.style_dashed)
+hline(50, "Midline", color=color.gray)
+
+// Plot signals
+plotshape(long_condition, title="Long Signal", location=location.belowbar,
+          color=color.green, style=shape.triangleup, size=size.small)
+plotshape(short_condition, title="Short Signal", location=location.abovebar,
+          color=color.red, style=shape.triangledown, size=size.small)
