@@ -14,6 +14,9 @@ import {
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
 import { useArbitrageWebSocket } from './hooks/useArbitrageWebSocket'
+import { OnChainPage } from './components/OnChainPage'
+import { OffChainPage } from './components/OffChainPage'
+import { ArbitragePage } from './components/ArbitragePage'
 
 ChartJS.register(
   CategoryScale,
@@ -54,7 +57,7 @@ function App() {
     return { labels, data }
   }
 
-  const arbitragePortfolioData = generatePortfolioData(25000, 0.03)
+
   const tradingBotPortfolioData = generatePortfolioData(28000, 0.08)
 
   const createChartData = (portfolioData: { labels: string[], data: number[] }, color: string) => ({
@@ -229,160 +232,23 @@ function App() {
     </>
   )
 
-  const renderArbitragePage = () => {
-    const totalPortfolioValue = arbitrageData.getTotalPortfolioValue();
-    const priceDiff = arbitrageData.getPriceDifference();
+    const renderOnChainPage = () => (
+    <OnChainPage
+      setDepositType={setDepositType}
+      setActiveNavSection={setActiveNavSection}
+    />
+  )
 
-    // Chain name mapping for display
-    const getChainDisplayName = (chainKey: string) => {
-      switch (chainKey) {
-        case 'avalanche':
-          return 'Ethereum Mainnet';
-        case 'sonic':
-          return 'Arbitrum';
-        default:
-          return chainKey;
-      }
-    };
+  const arbitragePortfolioData = { labels: [], data: [] }; // Create mock data for fallback
 
-    // Create chart data from real-time portfolio history
-    const portfolioChartData = arbitrageData.portfolioHistory.length > 0 ? {
-      labels: arbitrageData.portfolioHistory.map(point =>
-        new Date(point.timestamp).toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      ),
-      data: arbitrageData.portfolioHistory.map(point => point.value)
-    } : arbitragePortfolioData; // Fallback to mock data
-
-    return (
-      <div className="arbitrage-layout">
-        <div className="arbitrage-main">
-          <div className="arbitrage-panel">
-            <div className="panel-header">
-              <h3>
-                Arbitrage Portfolio Evolution
-                <span className={`connection-indicator ${arbitrageData.connected ? 'connected' : 'disconnected'}`}>
-                  {arbitrageData.connected ? '🟢' : '🔴'}
-                </span>
-              </h3>
-              <div className="panel-stats">
-                <span className="current-value">
-                  ${totalPortfolioValue > 0 ? totalPortfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
-                </span>
-                <span className="change-indicator positive">
-                  {arbitrageData.stats ? `+${arbitrageData.stats.totalProfit.toFixed(2)}` : '+0.00'}
-                </span>
-              </div>
-            </div>
-            <div className="chart-container">
-              <Line
-                data={createChartData(portfolioChartData, '#3a1c2a')}
-                options={chartOptions}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="arbitrage-sidebar">
-          <div className="portfolio-section">
-            <h3>Portfolio</h3>
-
-                        <div className="balance-item">
-              <label>Ethereum Mainnet Balance</label>
-              <div className="balance-value">
-                ${arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.total.toFixed(2) : '0.00'}
-              </div>
-              <div className="balance-detail">
-                MXNB: {arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.usdc.toFixed(2) : '0.00'} |
-                USDT: {arbitrageData.balances.avalanche ? arbitrageData.balances.avalanche.usdt.toFixed(2) : '0.00'}
-              </div>
-            </div>
-
-            <div className="balance-item">
-              <label>Arbitrum Balance</label>
-              <div className="balance-value">
-                ${arbitrageData.balances.sonic ? arbitrageData.balances.sonic.total.toFixed(2) : '0.00'}
-              </div>
-              <div className="balance-detail">
-                MXNB: {arbitrageData.balances.sonic ? arbitrageData.balances.sonic.usdc.toFixed(2) : '0.00'} |
-                USDT: {arbitrageData.balances.sonic ? arbitrageData.balances.sonic.usdt.toFixed(2) : '0.00'}
-              </div>
-            </div>
-
-            <div className="price-diff-section">
-              <h4>Price Difference</h4>
-              {priceDiff ? (
-                <div className="price-diff">
-                  <span className="percentage">{priceDiff.percentage.toFixed(4)}%</span>
-                  <span className="direction">{priceDiff.direction === 'avalanche_higher' ? '↑ ETH' : '↓ ARB'}</span>
-                </div>
-              ) : (
-                <span className="no-data">No price data</span>
-              )}
-            </div>
-
-            <div className="stats-section">
-              <h4>Trading Stats</h4>
-              {arbitrageData.stats ? (
-                <div className="stats-grid">
-                  <div className="stat-item">
-                    <span className="stat-label">Total Trades</span>
-                    <span className="stat-value">{arbitrageData.stats.totalTrades}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Win Rate</span>
-                    <span className="stat-value">{arbitrageData.stats.winRate.toFixed(1)}%</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Total Profit</span>
-                    <span className="stat-value">${arbitrageData.stats.totalProfit.toFixed(4)}</span>
-                  </div>
-                </div>
-              ) : (
-                <span className="no-data">No stats data</span>
-              )}
-            </div>
-
-            <div className="recent-trades-section">
-              <h4>Recent Trades</h4>
-              {arbitrageData.recentTrades.length > 0 ? (
-                <div className="trades-list">
-                  {arbitrageData.recentTrades.slice(0, 5).map((trade, index) => (
-                    <div key={index} className="trade-item">
-                      <div className="trade-header">
-                        <span className="trade-type">{trade.type.replace('USDC_TARGETED', 'MXNB_TARGETED')}</span>
-                        <span className="trade-timestamp">
-                          {new Date(trade.timestamp).toLocaleTimeString('en-US', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                      </div>
-                      <div className="trade-details">
-                        <span className="trade-route">{getChainDisplayName(trade.sourceChain)} → {getChainDisplayName(trade.targetChain)}</span>
-                        <span className={`trade-profit ${trade.netProfit > 0 ? 'positive' : 'negative'}`}>
-                          ${trade.netProfit.toFixed(4)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <span className="no-data">No recent trades</span>
-              )}
-            </div>
-
-            <div className="action-buttons">
-              <button className="btn-primary">Deposit</button>
-              <button className="btn-secondary">Withdraw</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const renderArbitrageDetailPage = () => (
+    <ArbitragePage
+      arbitrageData={arbitrageData}
+      arbitragePortfolioData={arbitragePortfolioData}
+      createChartData={createChartData}
+      chartOptions={chartOptions}
+    />
+  )
 
   const renderTradingBotPage = () => (
     <div className="trading-bot-layout">
@@ -429,79 +295,12 @@ function App() {
     </div>
   )
 
-  const renderOffChainPage = () => {
-    const cexServices = [
-      {
-        id: 'cex-15s',
-        name: 'CEX 15 seconds',
-        description: 'Let our intelligent trading algorithm work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and stop-loss mechanisms.',
-        status: 'active'
-      },
-      {
-        id: 'cex-1m',
-        name: 'CEX 1 minute',
-        description: 'Let our intelligent trading algorithm work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and stop-loss mechanisms.',
-        status: 'active'
-      },
-      {
-        id: 'cex-1h',
-        name: 'CEX 1 hour',
-        description: 'Let our intelligent trading algorithm work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and stop-loss mechanisms.',
-        status: 'active'
-      },
-      {
-        id: 'cex-4h',
-        name: 'CEX 4 hours',
-        description: 'Let our intelligent trading algorithm work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and stop-loss mechanisms.',
-        status: 'active'
-      },
-      {
-        id: 'cex-1d',
-        name: 'CEX 1 day',
-        description: 'Let our intelligent trading algorithm work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and stop-loss mechanisms.',
-        status: 'active'
-      },
-      {
-        id: 'cex-1w',
-        name: 'CEX 1 week',
-        description: 'Let our intelligent trading algorithm work for you. Using advanced market analysis and proven strategies, our bot executes trades 24/7 to maximize your returns while managing risk through sophisticated position sizing and stop-loss mechanisms.',
-        status: 'active'
-      }
-    ]
-
-    return (
-      <>
-        <section className="services-grid">
-          <h2>Off Chain Trading Bots</h2>
-          <div className="grid">
-            {cexServices.map((service) => (
-              <div
-                key={service.id}
-                className="service-card"
-              >
-                <h3>{service.name}</h3>
-                <p>{service.description}</p>
-                <div className="service-footer">
-                  <span className={`status ${service.status}`}>
-                    {service.status}
-                  </span>
-                  <button
-                    className="btn-primary service-btn"
-                    onClick={() => {
-                      setDepositType('mxn')
-                      setActiveNavSection('deposit')
-                    }}
-                  >
-                    Deposit MXN
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </>
-    )
-  }
+  const renderOffChainPage = () => (
+    <OffChainPage
+      setDepositType={setDepositType}
+      setActiveNavSection={setActiveNavSection}
+    />
+  )
 
   const renderDepositPage = () => {
     const bankDetails = {
@@ -614,7 +413,9 @@ function App() {
   const renderCurrentPage = () => {
     switch (activeNavSection) {
       case 'on-chain':
-        return renderArbitragePage()
+        return renderOnChainPage()
+      case 'arbitrage-detail':
+        return renderArbitrageDetailPage()
       case 'off-chain':
         return renderOffChainPage()
       case 'deposit':
