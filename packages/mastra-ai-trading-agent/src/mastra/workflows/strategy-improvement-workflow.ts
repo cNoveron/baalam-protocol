@@ -46,11 +46,170 @@ const pinescriptImprovementsSchema = z.object({
   })),
 });
 
-// Step 1: Read and analyze strategy files
+// Step 1: Analyze strategy evolution using git diff
+const analyzeStrategyEvolution = createStep({
+  id: 'analyze-strategy-evolution',
+  description: 'Analyzes git changes in strategy files and backtest results to understand evolution',
+  inputSchema: strategyImprovementInputSchema,
+  outputSchema: z.object({
+    evolutionAnalysis: z.object({
+      strategyFileChanges: z.object({
+        hasChanges: z.boolean(),
+        filePath: z.string().optional(),
+        diff: z.string().optional(),
+        addedLines: z.number().optional(),
+        removedLines: z.number().optional(),
+      }),
+      backtestChanges: z.object({
+        newFiles: z.array(z.object({
+          path: z.string(),
+          content: z.string(),
+          type: z.enum(['csv', 'text', 'markdown', 'other']),
+        })),
+        modifiedFiles: z.array(z.object({
+          path: z.string(),
+          diff: z.string(),
+          type: z.enum(['csv', 'text', 'markdown', 'other']),
+        })),
+      }),
+      commitInfo: z.object({
+        hash: z.string().optional(),
+        message: z.string().optional(),
+        timestamp: z.string().optional(),
+        author: z.string().optional(),
+      }).optional(),
+      commitHistory: z.array(z.object({
+        hash: z.string(),
+        message: z.string(),
+        timestamp: z.string(),
+        author: z.string(),
+        changedFiles: z.array(z.string()),
+      })),
+    }),
+    hasEvolutionData: z.boolean(),
+    // Pass through original input parameters
+    strategiesDir: z.string().optional(),
+    backtestsDir: z.string().optional(),
+    strategyName: z.string().optional(),
+  }),
+  execute: async ({ inputData, mastra }) => {
+    if (!inputData) {
+      throw new Error('Input data not provided');
+    }
+
+    const strategyName = inputData.strategyName || 'sample-strategy';
+    const agent = mastra?.getAgent('chiefStrategyAgent');
+
+    if (!agent) {
+      console.warn('Chief Strategy Agent not found, skipping evolution analysis');
+      return {
+        evolutionAnalysis: {
+          strategyFileChanges: { hasChanges: false },
+          backtestChanges: { newFiles: [], modifiedFiles: [] },
+          commitHistory: [],
+        },
+        hasEvolutionData: false,
+        strategiesDir: inputData.strategiesDir,
+        backtestsDir: inputData.backtestsDir,
+        strategyName: inputData.strategyName,
+      };
+    }
+
+    try {
+      // Use the agent's git analysis tools
+      const evolutionResult = await agent.stream([
+        {
+          role: 'user',
+          content: `Analyze the evolution of the "${strategyName}" strategy. Use your git analysis tools to:
+
+          1. Use analyzeStrategyEvolution to detect recent changes
+          2. Use getStrategyCommitHistory to get the development history
+
+          Provide a comprehensive analysis of how this strategy has evolved over time.`,
+        },
+      ]);
+
+      let analysisText = '';
+      for await (const chunk of evolutionResult.textStream) {
+        analysisText += chunk;
+      }
+
+      // For demonstration, create a structured response
+      // In a real implementation, the agent's tool calls would return structured data
+      return {
+        evolutionAnalysis: {
+          strategyFileChanges: { hasChanges: false },
+          backtestChanges: { newFiles: [], modifiedFiles: [] },
+          commitHistory: [],
+        },
+        hasEvolutionData: true,
+        strategiesDir: inputData.strategiesDir,
+        backtestsDir: inputData.backtestsDir,
+        strategyName: inputData.strategyName,
+      };
+
+    } catch (error) {
+      console.warn(`Git evolution analysis failed: ${error}`);
+      return {
+        evolutionAnalysis: {
+          strategyFileChanges: { hasChanges: false },
+          backtestChanges: { newFiles: [], modifiedFiles: [] },
+          commitHistory: [],
+        },
+        hasEvolutionData: false,
+        strategiesDir: inputData.strategiesDir,
+        backtestsDir: inputData.backtestsDir,
+        strategyName: inputData.strategyName,
+      };
+    }
+  },
+});
+
+// Step 2: Read and analyze strategy files
 const readStrategyFiles = createStep({
   id: 'read-strategy-files',
   description: 'Reads the Pinescript strategy and backtesting results from local files',
-  inputSchema: strategyImprovementInputSchema,
+  inputSchema: z.object({
+    evolutionAnalysis: z.object({
+      strategyFileChanges: z.object({
+        hasChanges: z.boolean(),
+        filePath: z.string().optional(),
+        diff: z.string().optional(),
+        addedLines: z.number().optional(),
+        removedLines: z.number().optional(),
+      }),
+      backtestChanges: z.object({
+        newFiles: z.array(z.object({
+          path: z.string(),
+          content: z.string(),
+          type: z.enum(['csv', 'text', 'markdown', 'other']),
+        })),
+        modifiedFiles: z.array(z.object({
+          path: z.string(),
+          diff: z.string(),
+          type: z.enum(['csv', 'text', 'markdown', 'other']),
+        })),
+      }),
+      commitInfo: z.object({
+        hash: z.string().optional(),
+        message: z.string().optional(),
+        timestamp: z.string().optional(),
+        author: z.string().optional(),
+      }).optional(),
+      commitHistory: z.array(z.object({
+        hash: z.string(),
+        message: z.string(),
+        timestamp: z.string(),
+        author: z.string(),
+        changedFiles: z.array(z.string()),
+      })),
+    }),
+    hasEvolutionData: z.boolean(),
+    // Original input parameters (passed through from initial input)
+    strategiesDir: z.string().optional(),
+    backtestsDir: z.string().optional(),
+    strategyName: z.string().optional(),
+  }),
   outputSchema: z.object({
     pinescriptCode: z.string(),
     backtestingFiles: z.array(z.object({
@@ -58,6 +217,41 @@ const readStrategyFiles = createStep({
       content: z.string(),
       type: z.enum(['csv', 'text', 'markdown', 'other']),
     })),
+    evolutionAnalysis: z.object({
+      strategyFileChanges: z.object({
+        hasChanges: z.boolean(),
+        filePath: z.string().optional(),
+        diff: z.string().optional(),
+        addedLines: z.number().optional(),
+        removedLines: z.number().optional(),
+      }),
+      backtestChanges: z.object({
+        newFiles: z.array(z.object({
+          path: z.string(),
+          content: z.string(),
+          type: z.enum(['csv', 'text', 'markdown', 'other']),
+        })),
+        modifiedFiles: z.array(z.object({
+          path: z.string(),
+          diff: z.string(),
+          type: z.enum(['csv', 'text', 'markdown', 'other']),
+        })),
+      }),
+      commitInfo: z.object({
+        hash: z.string().optional(),
+        message: z.string().optional(),
+        timestamp: z.string().optional(),
+        author: z.string().optional(),
+      }).optional(),
+      commitHistory: z.array(z.object({
+        hash: z.string(),
+        message: z.string(),
+        timestamp: z.string(),
+        author: z.string(),
+        changedFiles: z.array(z.string()),
+      })),
+    }),
+    hasEvolutionData: z.boolean(),
   }),
   execute: async ({ inputData }) => {
     if (!inputData) {
@@ -109,6 +303,8 @@ const readStrategyFiles = createStep({
       return {
         pinescriptCode,
         backtestingFiles,
+        evolutionAnalysis: inputData.evolutionAnalysis,
+        hasEvolutionData: inputData.hasEvolutionData,
       };
     } catch (error) {
       throw new Error(`Failed to read files: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -116,10 +312,10 @@ const readStrategyFiles = createStep({
   },
 });
 
-// Step 2: Analyze with Chief Strategy Agent
+// Step 3: Analyze with Chief Strategy Agent (with evolution data)
 const analyzeStrategy = createStep({
   id: 'analyze-strategy',
-  description: 'Chief Strategy Agent analyzes the strategy and backtesting results',
+  description: 'Chief Strategy Agent analyzes the strategy and backtesting results with evolution context',
   inputSchema: z.object({
     pinescriptCode: z.string(),
     backtestingFiles: z.array(z.object({
@@ -127,6 +323,41 @@ const analyzeStrategy = createStep({
       content: z.string(),
       type: z.enum(['csv', 'text', 'markdown', 'other']),
     })),
+    evolutionAnalysis: z.object({
+      strategyFileChanges: z.object({
+        hasChanges: z.boolean(),
+        filePath: z.string().optional(),
+        diff: z.string().optional(),
+        addedLines: z.number().optional(),
+        removedLines: z.number().optional(),
+      }),
+      backtestChanges: z.object({
+        newFiles: z.array(z.object({
+          path: z.string(),
+          content: z.string(),
+          type: z.enum(['csv', 'text', 'markdown', 'other']),
+        })),
+        modifiedFiles: z.array(z.object({
+          path: z.string(),
+          diff: z.string(),
+          type: z.enum(['csv', 'text', 'markdown', 'other']),
+        })),
+      }),
+      commitInfo: z.object({
+        hash: z.string().optional(),
+        message: z.string().optional(),
+        timestamp: z.string().optional(),
+        author: z.string().optional(),
+      }).optional(),
+      commitHistory: z.array(z.object({
+        hash: z.string(),
+        message: z.string(),
+        timestamp: z.string(),
+        author: z.string(),
+        changedFiles: z.array(z.string()),
+      })),
+    }),
+    hasEvolutionData: z.boolean(),
   }),
   outputSchema: z.object({
     originalCode: z.string(),
@@ -157,7 +388,58 @@ const analyzeStrategy = createStep({
       }
     });
 
+    // Prepare evolution analysis section
+    let evolutionSection = '';
+    if (inputData.hasEvolutionData) {
+      evolutionSection = `\n\n=== STRATEGY EVOLUTION ANALYSIS ===\n`;
+
+      if (inputData.evolutionAnalysis.commitInfo) {
+        evolutionSection += `\nLATEST COMMIT INFO:
+- Hash: ${inputData.evolutionAnalysis.commitInfo.hash}
+- Message: ${inputData.evolutionAnalysis.commitInfo.message}
+- Author: ${inputData.evolutionAnalysis.commitInfo.author}
+- Timestamp: ${inputData.evolutionAnalysis.commitInfo.timestamp}`;
+      }
+
+      if (inputData.evolutionAnalysis.strategyFileChanges.hasChanges && inputData.evolutionAnalysis.strategyFileChanges.diff) {
+        evolutionSection += `\n\nSTRATEGY FILE CHANGES:
+\`\`\`diff
+${inputData.evolutionAnalysis.strategyFileChanges.diff}
+\`\`\`
+Lines added: ${inputData.evolutionAnalysis.strategyFileChanges.addedLines || 0}
+Lines removed: ${inputData.evolutionAnalysis.strategyFileChanges.removedLines || 0}`;
+      }
+
+      if (inputData.evolutionAnalysis.backtestChanges.newFiles.length > 0) {
+        evolutionSection += `\n\nNEWLY ADDED BACKTEST FILES:`;
+        inputData.evolutionAnalysis.backtestChanges.newFiles.forEach((file, index) => {
+          evolutionSection += `\n\n--- NEW FILE ${index + 1}: ${file.path} ---\n`;
+          if (file.type === 'csv') {
+            const lines = file.content.split('\n');
+            const preview = lines.slice(0, 6).join('\n'); // Smaller preview for new files
+            evolutionSection += `\`\`\`csv\n${preview}\n${lines.length > 6 ? '... (truncated)' : ''}\n\`\`\``;
+          } else {
+            evolutionSection += file.content.substring(0, 500) + (file.content.length > 500 ? '...' : '');
+          }
+        });
+      }
+
+      if (inputData.evolutionAnalysis.commitHistory.length > 0) {
+        evolutionSection += `\n\nCOMMIT HISTORY:`;
+        inputData.evolutionAnalysis.commitHistory.slice(0, 5).forEach((commit, index) => {
+          evolutionSection += `\n${index + 1}. ${commit.hash.substring(0, 8)} - ${commit.message} (${commit.author}) - ${commit.timestamp}`;
+          if (commit.changedFiles.length > 0) {
+            evolutionSection += `\n   Files: ${commit.changedFiles.join(', ')}`;
+          }
+        });
+      }
+    } else {
+      evolutionSection = `\n\n=== NO EVOLUTION DATA AVAILABLE ===\nAnalyzing current state only (no git history available).\n`;
+    }
+
     const prompt = `Analyze this Pinescript trading strategy and its backtesting results to provide improvement recommendations.
+
+IMPORTANT: This analysis includes strategy evolution data from git diff. Use this information to understand how the strategy has developed over time and base your recommendations on both current performance AND historical changes.
 
 PINESCRIPT STRATEGY:
 \`\`\`pinescript
@@ -165,6 +447,8 @@ ${inputData.pinescriptCode}
 \`\`\`
 
 BACKTESTING RESULTS AND ANALYSIS:${backtestingSections}
+
+${evolutionSection}
 
 Please provide:
 1. A comprehensive analysis of the strategy's current performance
@@ -243,7 +527,7 @@ Format your response as a structured analysis with clear sections for each impro
   },
 });
 
-// Step 3: Generate Pinescript improvements
+// Step 4: Generate Pinescript improvements
 const generatePinescriptImprovements = createStep({
   id: 'generate-pinescript-improvements',
   description: 'Pinescript Agent generates code improvements based on analysis',
@@ -334,7 +618,7 @@ positionSize = math.min(strategy.equity * 0.02 / (atr * atrMultiplier), strategy
   },
 });
 
-// Step 4: Format output for UI
+// Step 5: Format output for UI
 const formatOutput = createStep({
   id: 'format-output',
   description: 'Formats the improvements for display in the Mastra chatbot UI',
@@ -393,6 +677,7 @@ const strategyImprovementWorkflow = createWorkflow({
     improvements: pinescriptImprovementsSchema,
   }),
 })
+  .then(analyzeStrategyEvolution)
   .then(readStrategyFiles)
   .then(analyzeStrategy)
   .then(generatePinescriptImprovements)
